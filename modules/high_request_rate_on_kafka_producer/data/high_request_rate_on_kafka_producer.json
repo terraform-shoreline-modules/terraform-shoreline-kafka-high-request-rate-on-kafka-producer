@@ -1,0 +1,178 @@
+{
+  "name": "high_request_rate_on_kafka_producer",
+  "description": "This incident type is related to a high request rate on a Kafka producer. This could be caused by a sudden increase in traffic or a malfunction in the producer system. This incident can cause delays in message processing and may lead to data loss or system failure if not addressed promptly. It is important to identify the root cause of this incident and take appropriate measures to prevent similar incidents in the future.",
+  "params": [
+    {
+      "name": "ZOOKEEPER_HOST_PORT",
+      "value": ""
+    },
+    {
+      "name": "KAFKA_BROKER",
+      "value": ""
+    },
+    {
+      "name": "TOPIC_NAME",
+      "value": ""
+    },
+    {
+      "name": "KAFKA_PRODUCER",
+      "value": ""
+    },
+    {
+      "name": "KAFKA_CONSUMER",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## High request rate on Kafka producer.\nThis incident type is related to a high request rate on a Kafka producer. This could be caused by a sudden increase in traffic or a malfunction in the producer system. This incident can cause delays in message processing and may lead to data loss or system failure if not addressed promptly. It is important to identify the root cause of this incident and take appropriate measures to prevent similar incidents in the future."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the network connection between the Kafka producer and consumer"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_kafka_ping_script($KAFKA_PRODUCER, $KAFKA_CONSUMER)"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if the Kafka producer is running"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `systemctl status ${KAFKA_PRODUCER}`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Kafka producer logs for any errors or warnings"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `journalctl -u ${KAFKA_PRODUCER} -f`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Kafka broker logs for any errors or warnings"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `journalctl -u ${KAFKA_BROKER} -f`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if the Kafka topic is created and has the expected number of partitions"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `kafka-topics --zookeeper ${ZOOKEEPER_HOST_PORT} --describe --topic ${TOPIC_NAME}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if the Kafka consumer is running"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `systemctl status ${KAFKA_CONSUMER}`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Kafka consumer logs for any errors or warnings"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `journalctl -u ${KAFKA_CONSUMER} -f`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the CPU and memory usage of the Kafka producer and consumer processes"
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `top`"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the network traffic between the Kafka producer and consumer"
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `tcpdump -i eth01 port 9092`"
+    },
+    {
+      "name": "cell_20",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## A sudden surge in demand for the service or application that is using the Kafka producer, leading to a high request rate."
+    },
+    {
+      "name": "cell_21",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_system_overload_detection($KAFKA_BROKER, $TOPIC_NAME)"
+    },
+    {
+      "name": "cell_22",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Restart Kafka service to fix intermittent issues."
+    },
+    {
+      "name": "cell_23",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_stop_start_kafka()"
+    }
+  ]
+}

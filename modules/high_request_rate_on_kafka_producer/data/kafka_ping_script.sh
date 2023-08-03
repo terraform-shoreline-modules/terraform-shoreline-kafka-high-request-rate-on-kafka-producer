@@ -1,0 +1,3 @@
+ping ${KAFKA_PRODUCER}
+
+ping ${KAFKA_CONSUMER}
